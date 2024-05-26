@@ -3,39 +3,7 @@ const addBtn = document.querySelector('.add-btn');
 const clearBtn = document.querySelector('.clear-btn');
 const saveBtn = document.querySelector('.save-btn');
 const input = document.querySelector('#main-input');
-
-function addTask() {
-    ul.insertAdjacentHTML(
-        'afterbegin',
-         `<li>
-            <button class='complete-btn'>
-                <i class="fa-regular fa-circle"></i>
-            </button>
-            <span class='item-text'>${input.value}</span>
-            <button class='edit-btn'>
-                <i class="fa-solid fa-pencil"></i>
-            </button>
-            <button class='delete-btn'>
-                <i class="fa-solid fa-xmark"></i>
-            </button>
-        </li>
-    `);
-
-    input.value = '';
-}
-
-function toggleEditMode(li) {
-    const span = li.querySelector('.item-text');
-    const input = document.createElement('input');
-    input.type = 'text';
-    input.value = span.textContent;
-    li.replaceChild(input, span);
-    input.focus();
-    input.addEventListener('blur', () => {
-        span.textContent = input.value;
-        li.replaceChild(span, input);
-    });
-}
+const editInput = document.querySelector('#edit-input');
 
 function toggleCompletedState(li) {
     const textSpan = li.querySelector('span');
@@ -59,6 +27,91 @@ function moveCompletedTasks() {
             task.style.transform = 'translateY(0)';
         }, 10);
     });
+}
+
+function toggleEditMode(li) {
+    const span = li.querySelector('.item-text');
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.value = span.textContent;
+    input.id = 'edit-input';
+    li.replaceChild(input, span);
+    input.focus();
+
+    function handleKeyDown(event) {
+        if (event.key === 'Enter') {
+            exitEditMode();
+        }
+    }
+
+    function exitEditMode() {
+        span.textContent = input.value;
+        li.replaceChild(span, input);
+        input.removeEventListener('blur', exitEditMode);
+        input.removeEventListener('keydown', handleKeyDown);
+    }
+
+    input.addEventListener('blur', exitEditMode);
+    input.addEventListener('keydown', handleKeyDown);
+}
+
+function addTask() {
+    ul.insertAdjacentHTML(
+        'afterbegin',
+         `<li>
+            <button class='complete-btn'>
+                <i class="fa-regular fa-circle"></i>
+            </button>
+            <span class='item-text'>${input.value}</span>
+            <button class='edit-btn'>
+                <i class="fa-solid fa-pencil"></i>
+            </button>
+            <button class='delete-btn'>
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </li>
+    `);
+
+    input.value = '';
+}
+
+function saveList() {
+    const list = [];
+    const items = ul.querySelectorAll('li');
+    
+    items.forEach(item => {
+        const text = item.querySelector('.item-text').textContent;
+        const isCompleted = item.classList.contains('completed');
+        list.push({ text, isCompleted });
+    });
+
+    localStorage.setItem('taskList', JSON.stringify(list));
+}
+
+function loadList() {
+    const savedList = localStorage.getItem('taskList');
+    if (savedList) {
+        const list = JSON.parse(savedList);
+        list.forEach(item => {
+            const li = document.createElement('li');
+            li.innerHTML = `
+                <button class='complete-btn'>
+                    <i class="${item.isCompleted ? 'fa-solid fa-circle-check' : 'fa-regular fa-circle'}"></i>
+                </button>
+                <span class='item-text'>${item.text}</span>
+                <button class='edit-btn'>
+                    <i class="fa-solid fa-pencil"></i>
+                </button>
+                <button class='delete-btn'>
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            `;
+            if (item.isCompleted) {
+                li.classList.add('completed');
+            }
+            ul.appendChild(li);
+        });
+    }
 }
 
 addBtn.addEventListener('click', () => { 
@@ -96,7 +149,7 @@ clearBtn.addEventListener('click', () => {
     localStorage.removeItem('taskList');
 });
 
-// saveBtn.addEventListener('click', saveList);
+saveBtn.addEventListener('click', saveList);
 
-// document.addEventListener('DOMContentLoaded', loadList);
+document.addEventListener('DOMContentLoaded', loadList);
 
