@@ -109,7 +109,7 @@ i {
 
 .add-btn {
     background-color: goldenrod;
-    border: 2px solid goldenrod;
+    border: none;
     margin-left: 10px;
     text-wrap: nowrap;
 }
@@ -201,4 +201,16 @@ li:hover i {
 .completed {
     opacity: 0.6;
     transition: transform 0.5s ease-in-out;
+}
+
+.add-btn:active {
+    background-color: rgb(229, 201, 128);
+}
+
+.clear-btn:active {
+    background-color: rgb(222, 134, 134);
+}
+
+.save-btn:active {
+    background-color: rgb(119, 215, 162);
 }

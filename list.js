@@ -86,6 +86,7 @@ function saveList() {
     });
 
     localStorage.setItem('taskList', JSON.stringify(list));
+    alert('Nice! Your list is saved.');
 }
 
 function loadList() {
